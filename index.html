@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f1115" />
+  <title>Pabrik Ops</title>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="icon" href="./icon-192.png" />
+  <link rel="apple-touch-icon" href="./icon-192.png" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">PABRIK<span class="brand-dot">.</span>OPS</div>
+    <div class="topbar-right">
+      <span id="netStatus" class="pill pill-ok">online</span>
+      <button id="navMenuBtn" class="iconbtn" aria-label="menu">&#9776;</button>
+    </div>
+  </header>
+
+  <nav id="tabbar" class="tabbar">
+    <button data-view="dashboard" class="tab active">Dashboard</button>
+    <button data-view="entry"     class="tab">Entry</button>
+    <button data-view="settings"  class="tab">Settings</button>
+  </nav>
+
+  <main id="view"></main>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="./config.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
