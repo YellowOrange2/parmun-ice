@@ -315,11 +315,10 @@ function renderEntryForm(type) {
         el('input', { type: 'number', step: '1', min: '0', name: 'qty', required: '', inputmode: 'numeric' })
       ];
       break;
+    }
     case 'plastic_log':
       fields = [
         ...tsField(),
-        el('label', {}, 'SKU'),
-        el('select', { name: 'sku_id', required: '' }, skuOptions),
         el('div', { class: 'row' }, [
           el('div', {}, [
             el('label', {}, 'Kg used'),
