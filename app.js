@@ -171,19 +171,14 @@ function renderDashboard() {
     tbl.appendChild(el('thead', {}, el('tr', {}, [
       el('th', {}, 'SKU'),
       el('th', { class: 'num' }, 'Prod'),
-      el('th', { class: 'num' }, 'Sold'),
-      el('th', { class: 'num' }, 'Plastic kg'),
-      el('th', { class: 'num' }, 'Loss %')
+      el('th', { class: 'num' }, 'Sold')
     ])));
     const tbody = el('tbody');
     d.perSku.forEach(s => {
-      const lossClass = (s.lossPctM != null && s.lossPctM > cfg.LOSS_RED_THRESHOLD) ? 'warn' : '';
       tbody.appendChild(el('tr', {}, [
         el('td', {}, s.sku_name),
         el('td', { class: 'num' }, fmtInt(s.prodM)),
-        el('td', { class: 'num' }, fmtInt(s.soldM)),
-        el('td', { class: 'num' }, fmtNum(s.plasticKgM, 1)),
-        el('td', { class: 'num ' + lossClass }, fmtPct(s.lossPctM))
+        el('td', { class: 'num' }, fmtInt(s.soldM))
       ]));
     });
     tbl.appendChild(tbody);
@@ -293,21 +288,31 @@ function renderEntryForm(type) {
         el('input', { type: 'number', step: '1', min: '0', name: 'qty', required: '', inputmode: 'numeric' })
       ];
       break;
-    case 'bag_sale_log':
+    case 'bag_sale_log': {
+      // Auto-fill unit_price from selected SKU. Hidden input carries the value to submit.
+      const priceDisplay = el('div', {
+        style: 'font-family: "JetBrains Mono", monospace; font-size: 18px; color: var(--amber-2); padding: 8px 0;'
+      }, '—');
+      const hiddenPrice = el('input', { type: 'hidden', name: 'unit_price', value: '0' });
+      const skuSelect = el('select', { name: 'sku_id', required: '' }, skuOptions);
+      const updatePrice = () => {
+        const sku = state.skus.find(s => s.sku_id === skuSelect.value);
+        const p = sku ? sku.unit_price : 0;
+        hiddenPrice.value = String(p);
+        priceDisplay.textContent = p > 0 ? `Rp ${p.toLocaleString('id-ID')} per pcs` : '— no price set in skus tab —';
+      };
+      skuSelect.addEventListener('change', updatePrice);
+      // initialize after the element is in the DOM
+      setTimeout(updatePrice, 0);
       fields = [
         ...tsField(),
         el('label', {}, 'SKU'),
-        el('select', { name: 'sku_id', required: '' }, skuOptions),
-        el('div', { class: 'row' }, [
-          el('div', {}, [
-            el('label', {}, 'Qty (pcs)'),
-            el('input', { type: 'number', step: '1', min: '0', name: 'qty', required: '', inputmode: 'numeric' })
-          ]),
-          el('div', {}, [
-            el('label', {}, 'Unit price (Rp)'),
-            el('input', { type: 'number', step: '1', min: '0', name: 'unit_price', inputmode: 'numeric' })
-          ])
-        ])
+        skuSelect,
+        el('label', {}, 'Unit price'),
+        priceDisplay,
+        hiddenPrice,
+        el('label', {}, 'Qty (pcs)'),
+        el('input', { type: 'number', step: '1', min: '0', name: 'qty', required: '', inputmode: 'numeric' })
       ];
       break;
     case 'plastic_log':
@@ -467,14 +472,14 @@ function renderSettings() {
     tbl.appendChild(el('thead', {}, el('tr', {}, [
       el('th', {}, 'ID'),
       el('th', {}, 'Name'),
-      el('th', { class: 'num' }, 'pcs/kg')
+      el('th', { class: 'num' }, 'Price')
     ])));
     const tb = el('tbody');
     state.skus.forEach(s => {
       tb.appendChild(el('tr', {}, [
         el('td', {}, s.sku_id),
         el('td', {}, s.sku_name),
-        el('td', { class: 'num' }, fmtNum(s.pcs_per_kg, 0))
+        el('td', { class: 'num' }, s.unit_price ? 'Rp ' + s.unit_price.toLocaleString('id-ID') : '—')
       ]));
     });
     tbl.appendChild(tb);
